@@ -4,7 +4,7 @@ import imutils
 
 # read image and take first channel 
 # only
-bottle_3_channel = cv2.imread("./images/pen3.png")
+bottle_3_channel = cv2.imread("./images/pen2.png")
 bottle_gray = cv2.split(bottle_3_channel)[0]
 cv2.imshow("Bottle Gray", bottle_gray)
 cv2.waitKey(0)
