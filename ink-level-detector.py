@@ -10,7 +10,8 @@ def standardize_image(cv, imagePath, show_image):
     '''
     # Step 1: convert image jgp to png
     img = cv.imread("./test.jpg")
-    png_img = cv.imwrite("./test.png", img)
+    cv.imwrite("./test.png", img)
+    png_img = cv.imread("./test.png")
     if show_image:
         cv.imshow("PNG format", png_img)
         cv.waitKey(0)
@@ -43,7 +44,7 @@ def blur_image(cv, img):
 #     '''
 
 print("convert images")
-standardize_image(cv, "hi")
+standardize_image(cv, "hi", True)
 
 
 # pen_image = cv.imread("./images/pen1.png")
