@@ -12,23 +12,31 @@ def standardize_image(cv, imagePath, show_image):
     img = cv.imread("./test.jpg")
     cv.imwrite("./test.png", img)
     png_img = cv.imread("./test.png")
+
+    # Step 2: resize an image
+    width = 400
+    height = int(width * png_img.shape[0] / img.shape[1])
+    print("width: " + str(width))
+    print("height: " + str(height))
+    resized_img = cv.resize(png_img, (width, height), interpolation = cv.INTER_AREA)
+    
     if show_image:
-        cv.imshow("PNG format", png_img)
+        cv.imshow("Resized PNG Image", resized_img)
         cv.waitKey(0)
     
     
     # Step 2: chnage it to grayscale and resize image
-    img = cv.imread("./test.png")
+    # img = cv.imread("./test.png")
     
-    width = 400
-    height = int(width * int(img.shape[0]) / int(img.shape[1]))
+    # width = 400
+    # height = int(width * int(img.shape[0]) / int(img.shape[1]))
 
-    print("width: " + str(width))
-    print("height: " + str(height))
+    # print("width: " + str(width))
+    # print("height: " + str(height))
     
-    resized_img = cv.resize(img, (width, height), interpolation = cv.INTER_AREA)
-    gray_img = cv.cvtColor(resized_img, cv.COLOR_BGR2GRAY)
-    cv.imwrite("./test_resized.png", gray_img)
+    # resized_img = cv.resize(img, (width, height), interpolation = cv.INTER_AREA)
+    # gray_img = cv.cvtColor(resized_img, cv.COLOR_BGR2GRAY)
+    # cv.imwrite("./test_resized.png", gray_img)
     
     return resized_img
 
