@@ -1,13 +1,16 @@
 import cv2 as cv
 from matplotlib import pyplot as plt
 import imutils
+import RPi.GPIO as GPIO
+
+
 
 # Step 1: resize image
 def standardize_image(cv, imagePath, show_image):
-    '''
-    Convert a file to graysacle and reszie it to 400 x height
+    
+    # Convert a file to graysacle and reszie it to 400 x height
 
-    '''
+    
     # Step 1: convert image jgp to png
     img = cv.imread("./test2.jpg")
     cv.imwrite("./test2.png", img)
@@ -63,6 +66,18 @@ def get_threshold(cv, plt, img, show_image):
         cv.imshow("segmented image", segmented_img)
         print("Threshold: {}".format(T))
         cv.waitKey(0)
+    
+    return segmented_img
+
+'''
+def apply_opening(cv, img, show_image):
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
+    open_image = cv.morphologyEx(img, cv.MORPH_OPEN, kernel)
+    if show_image:
+        cv.imshow("Apply Opening Operation", open_image)
+        cv.waitKey(0)
+
+'''
 
 # Step 1: convert an image to an grayscale image
 # def convert_to_grayscale(cv, imagePath):
@@ -73,10 +88,18 @@ def get_threshold(cv, plt, img, show_image):
 #     imagePath -- the image path string 
 #     '''
 
+'''
+print("take a picture")
+image_name = capture_image()
+
+
 print("convert images")
 img = standardize_image(cv, "hi", True)
 img = blur_image(cv, img, True)
-get_threshold(cv, plt, img, True)
+img = get_threshold(cv, plt, img, True)
+img = apply_opening(cv, img, True)
+'''
+
 
 # pen_image = cv.imread("./images/pen1.png")
 # pen_gray = cv.split(pen_image)[0]
@@ -84,3 +107,28 @@ get_threshold(cv, plt, img, True)
 # cv.waitKey(0)
 
 
+
+from picamera import PiCamera
+from time import sleep
+
+def capture_image(width, height):
+    camera = PiCamera(resolution=(1080, 1920), framerate=30)
+    try:
+        camera.start_preview()
+        sleep(5)
+        camera.stop_preview()
+        camera.capture('./images/pic.png', resize=(width,heights))
+    finally:
+        camera.close()
+    
+
+button = 12
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+print("starting....")
+while True:
+    if GPIO.input(button) == GPIO.HIGH:
+        print("start capturing....")
+        capture_image(540, 960)
+        sleep(2)
