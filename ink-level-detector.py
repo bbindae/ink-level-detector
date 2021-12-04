@@ -144,8 +144,8 @@ def get_threshold(cv, plt, img, show_image):
         plt.hist(img.ravel(), 256, [0, 256])
         plt.show()
     
-    (T, segmented_img) = cv.threshold(img, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU)
-    # (T, segmented_img) = cv.threshold(img, 50, 255, cv.THRESH_BINARY_INV)
+    #(T, segmented_img) = cv.threshold(img, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU)
+    (T, segmented_img) = cv.threshold(img, 50, 255, cv.THRESH_BINARY_INV)
     if show_image:
         cv.imshow("segmented image", segmented_img)
         print("Threshold: {}".format(T))
@@ -162,6 +162,33 @@ def apply_opening(cv, img, show_image):
     
     return open_image
 
+def find_contours(cv, original_img, img, show_image):
+    contours = cv.findContours(img.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    print("finding contours:")
+    print(contours)
+    contours = imutils.grab_contours(contours)
+    original_img_clone = original_img.copy()
+    cv.drawContours(original_img_clone, contours, -1, (255, 0, 0), 2)
+    if show_image == True:
+        cv.imshow("All contours", original_img_clone)
+        cv.waitKey(0)
+    
+    return contours
+
+def find_largest_contours(cv, original_img, contours, show_image):
+    areas = [cv.contourArea(contour) for contour in contours]
+    (contours, areas) = zip(*sorted(zip(contours, areas), key=lambda a:a[1]))
+    # print("(contours, areas):")
+    # print((contours, areas))
+    if show_image:
+        original_img_clone = original_img.copy()
+        cv.drawContours(original_img_clone, [contours[-1]], -1, (255, 0, 0), 2)
+        cv.imshow("Largest contour", original_img_clone)
+        cv.waitKey(0)
+    
+    return (contours, areas)
+
+# def show_decision(cv, original_img, contours)
 # button = 12
 # GPIO.setwarnings(False)
 # GPIO.setmode(GPIO.BOARD)
@@ -177,8 +204,10 @@ def apply_opening(cv, img, show_image):
 # finally:
 #     GPIO.cleanup()
 
-original_img = capture_image(cv, 540, 960, True)
-img = convert_to_gray_image(cv, original_img, True)
-img = blur_image(cv, img, True)
-img = get_threshold(cv, plt, img, True)
-img = apply_opening(cv, img, True)
+original_img = capture_image(cv, 540, 960, False)
+img = convert_to_gray_image(cv, original_img, False)
+img = blur_image(cv, img, False)
+img = get_threshold(cv, plt, img, False)
+img = apply_opening(cv, img, False)
+contours = find_contours(cv, original_img, img, True)
+(contours, areas) = find_largest_contours(cv, original_img, contours, False)
