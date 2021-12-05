@@ -164,8 +164,10 @@ def apply_opening(cv, img, show_image):
 
 def find_contours(cv, original_img, img, show_image):
     contours = cv.findContours(img.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    print("finding contours:")
-    print(contours)
+    #print("finding contours:")
+    #print(contours)
+
+    # applying imutils.grab_contours makes countours openCV version agnostic
     contours = imutils.grab_contours(contours)
     original_img_clone = original_img.copy()
     cv.drawContours(original_img_clone, contours, -1, (255, 0, 0), 2)
@@ -177,9 +179,11 @@ def find_contours(cv, original_img, img, show_image):
 
 def find_largest_contours(cv, original_img, contours, show_image):
     areas = [cv.contourArea(contour) for contour in contours]
+    #print("area:")
+    #print(areas)
     (contours, areas) = zip(*sorted(zip(contours, areas), key=lambda a:a[1]))
-    # print("(contours, areas):")
-    # print((contours, areas))
+    #print("(contours, areas):")
+    #print((contours, areas))
     if show_image:
         original_img_clone = original_img.copy()
         cv.drawContours(original_img_clone, [contours[-1]], -1, (255, 0, 0), 2)
@@ -187,6 +191,30 @@ def find_largest_contours(cv, original_img, contours, show_image):
         cv.waitKey(0)
     
     return (contours, areas)
+
+def last_decision(cv, original_img, contours, show_image):
+    # draw bounding box, calculate aspect and display decision
+    original_img_clone = original_img.copy()
+    (x, y, w, h) = cv.boundingRect(contours[-1])
+    print(x,y,w,h)
+    aspect_ratio = w / float(h)
+    limit = 0.17
+
+    if aspect_ratio < limit:
+        cv.rectangle(original_img_clone, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv.putText(original_img_clone, "OK", (x + 10, y + 20), cv.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+    else:
+        cv.rectangle(original_img_clone, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        cv.putText(original_img_clone, "NOT OK", (x + 10, y + 20), cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
+    
+    if show_image:
+        cv.imshow("Decision", original_img_clone)
+        cv.waitKey(0)
+
+
+
+
+
 
 # def show_decision(cv, original_img, contours)
 # button = 12
@@ -209,5 +237,6 @@ img = convert_to_gray_image(cv, original_img, False)
 img = blur_image(cv, img, False)
 img = get_threshold(cv, plt, img, False)
 img = apply_opening(cv, img, False)
-contours = find_contours(cv, original_img, img, True)
-(contours, areas) = find_largest_contours(cv, original_img, contours, False)
+contours = find_contours(cv, original_img, img, False)
+(contours, areas) = find_largest_contours(cv, original_img, contours, True)
+last_decision(cv, original_img, contours, True)
