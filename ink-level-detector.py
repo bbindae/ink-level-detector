@@ -13,21 +13,27 @@ def capture_image(cv, width, height, show_image):
     # Set full HD resolution
     camera = PiCamera(resolution=(1080, 1920), framerate=30)
     img = None
-    try:
-        camera.start_preview()
-        sleep(5)
-        camera.stop_preview()
-        camera.capture('./images/pic.png', resize=(width,height))
-        img = cv.imread('./images/pic.png')
-        if show_image:
-            cv.imshow("Captured image", img)
-            cv.waitKey(0)        
-    finally:
+    #try:
+    camera.start_preview()
+    sleep(2)
+    camera.stop_preview()
+    camera.capture('./images/pic.png', resize=(width,height))
+    camera.close()
+    print("an image captured!")
+    print("start reading an image captured")
+    img = cv.imread('./images/pic.png')
+    print("image read")
+    if show_image:
+        cv.imshow("Captured image", img)
+        cv.waitKey(0)        
+    #finally:
         #camera.close()
-        pass
+        #pass
+    print("reading image done")
     return img    
 
 def convert_to_gray_image(cv, img, show_image=True):
+    print("convert to gray image")
     gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     if show_image:
         cv.imshow("GrayScale image", gray_img)
@@ -36,6 +42,7 @@ def convert_to_gray_image(cv, img, show_image=True):
     return cv.split(gray_img)[0]
 
 def blur_image(cv, img, show_image=True):
+    print("blue image")
     img = cv.GaussianBlur(img, (7, 7), 0)
     if show_image:
         cv.imshow("Gray smoothed 7 x 7", img)
@@ -44,6 +51,7 @@ def blur_image(cv, img, show_image=True):
     return img
 
 def get_threshold(cv, plt, img, show_image):
+    print("get threshold")
     if show_image:
         plt.hist(img.ravel(), 256, [0, 256])
         plt.show()
@@ -102,6 +110,7 @@ def last_decision(cv, original_img, contours, show_image):
     (x, y, w, h) = cv.boundingRect(contours[-1])
     print(x,y,w,h)
     aspect_ratio = w / float(h)
+    print("aspect ratio" + str(aspect_ratio))
     limit = 0.17
 
     if aspect_ratio < limit:
@@ -126,8 +135,8 @@ try:
     while True:
         if GPIO.input(button) == GPIO.HIGH:
             print("start capturing....")
-            capture_image(cv,540, 960)
-            sleep(2)
+            #capture_image(cv,540, 960, True)
+            #sleep(2)
             original_img = capture_image(cv, 540, 960, True)
             img = convert_to_gray_image(cv, original_img, True)
             img = blur_image(cv, img, True)
