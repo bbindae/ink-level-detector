@@ -148,64 +148,66 @@ def show_image_center(cv, image_title, img):
     cv.destroyAllWindows()
 
 
-show_image = False
+show_image = True
 
-# from picamera import PiCamera
-# def capture_image(cv, width, height, show_image=True):    
-#     '''
-#     Captures an image by the given dimension and return an OpneCV image object
+from picamera import PiCamera
+def capture_image(cv, width, height, show_preview=True):    
+    '''
+    Captures an image by the given dimension and return an OpneCV image object
     
-#     '''
-#     print("# Step 1: Capturing an image of an ink barrel")
-#     camera = PiCamera(resolution=(1080, 1920), framerate=30)
-#     img = None
-#     try:
-#         camera.start_preview()
-#         sleep(2)
-#         camera.stop_preview()
-#         print("Start capturing an image")
-#         camera.capture('./images/pic.png', resize=(width,height))
-#         print("Finished capturing an image")
-#     finally:
-#         camera.close()
-#         print("A camera closed")
+    '''
+    print("# Step 1: Capturing an image of an ink barrel")
+    camera = PiCamera(resolution=(1080, 1920), framerate=30)
+    img = None
+    try:
+        if show_preview:
+            camera.start_preview()
+            sleep(2)
+            camera.stop_preview()
+        
+        print("Start capturing an image")
+        camera.capture('./images/pic.png', resize=(width,height))
+        print("Finished capturing an image")
+    finally:
+        camera.close()
+        print("A camera closed")
 
-# import RPi.GPIO as GPIO
-# button = 12
-# GPIO.setwarnings(False)
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-# print("########### Start Ink level detector ######################")
-# print("Ink level detector initiated...")
-# print("Press the button to start detecting ink level")
-# try:
-#     while True:
-#         if GPIO.input(button) == GPIO.HIGH:
-#             print("The button pressed and start detecting ink level...")
-                        
-#             capture_image(cv, 540, 960)
-#             original_img = read_captured_image(cv)
-#             img = convert_to_gray_image(cv, original_img)
-#             img = blur_image(cv, img)
-#             img = get_threshold(cv, plt, img)
-#             img = apply_opening(cv, img)
-#             contours = find_contours(cv, original_img, img)
-#             (contours, areas) = find_largest_contours(cv, original_img, contours)
-#             show_decision(cv, original_img, contours,0.17)
 
-#             print("\nInk level detection is done")
-#             sleep(1)
-#             print("press the button again if you want to detect another one")
+import RPi.GPIO as GPIO
+button = 12
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+print("########### Start Ink level detector ######################")
+print("Ink level detector initiated...")
+print("Press the button to start detecting ink level")
+try:
+    while True:
+        if GPIO.input(button) == GPIO.HIGH:
+            print("The button pressed and start detecting ink level...")
+                       
+            capture_image(cv, 540, 960, show_image)
+            original_img = read_captured_image(cv, show_image=show_image)
+            img = convert_to_gray_image(cv, original_img, show_image)
+            img = blur_image(cv, img, show_image)
+            img = get_threshold(cv, plt, img, show_image)
+            img = apply_opening(cv, img, show_image)
+            contours = find_contours(cv, original_img, img, show_image)
+            (contours, areas) = find_largest_contours(cv, original_img, contours, show_image)
+            show_decision(cv, original_img, contours,0.17)
 
-# finally:
-#     GPIO.cleanup()
+            print("\nInk level detection is done")
+            sleep(1)
+            print("press the button again if you want to detect another one")
+finally:
+    GPIO.cleanup()
 
-# print("################ Ink level detection finished #############################")
+print("################ Ink level detection finished #############################")
 
 
 # Non-raspberry Pi version
 
-
+'''
 print("\n\n############## Start Ink level detector ver. non R-Pi ###############")
 
 original_img = read_captured_image(cv, show_image=show_image)
@@ -218,3 +220,4 @@ contours = find_contours(cv, original_img, img, show_image)
 show_decision(cv, original_img, contours, 0.17)
 
 print("\n\n############## Ink level detection finished #######################")
+'''
