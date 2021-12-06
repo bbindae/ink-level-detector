@@ -123,8 +123,7 @@ def show_decision(cv, original_img, contours, ink_level_threshold, show_image=Tr
         cv.putText(original_img_clone, "NOT OK", (x + 10, y + 20), cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
         print("\n\n****** Ink level is NOT sufficient! ******")
     
-    if show_image:
-        show_image_center(cv, "The final result", original_img_clone)
+    show_image_center(cv, "The final result", original_img_clone)
         
 
 import screeninfo
@@ -149,6 +148,7 @@ def show_image_center(cv, image_title, img):
     cv.destroyAllWindows()
 
 
+show_image = False
 
 # from picamera import PiCamera
 # def capture_image(cv, width, height, show_image=True):    
@@ -208,13 +208,13 @@ def show_image_center(cv, image_title, img):
 
 print("\n\n############## Start Ink level detector ver. non R-Pi ###############")
 
-original_img = read_captured_image(cv)
-img = convert_to_gray_image(cv, original_img)
-img = blur_image(cv, img)
-img = get_threshold(cv, plt, img)
-img = apply_opening(cv, img)
-contours = find_contours(cv, original_img, img, False)
-(contours, areas) = find_largest_contours(cv, original_img, contours, True)
+original_img = read_captured_image(cv, show_image=show_image)
+img = convert_to_gray_image(cv, original_img, show_image)
+img = blur_image(cv, img, show_image)
+img = get_threshold(cv, plt, img, show_image)
+img = apply_opening(cv, img, show_image)
+contours = find_contours(cv, original_img, img, show_image)
+(contours, areas) = find_largest_contours(cv, original_img, contours, show_image)
 show_decision(cv, original_img, contours, 0.17)
 
 print("\n\n############## Ink level detection finished #######################")
