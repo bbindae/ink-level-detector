@@ -18,9 +18,7 @@ def read_captured_image(cv, file_path = '', show_image = True):
     img = cv.imread(path)
     print("\tFinish reading a captured image")
     if show_image:
-        cv.imshow("Captured image", img)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "Captured image", img)       
     
     return img  
 
@@ -31,9 +29,7 @@ def convert_to_gray_image(cv, img, show_image = True):
     gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     print("\tFinish converting a captured image to a grayscale image")
     if show_image:
-        cv.imshow("Grayscale image", gray_img)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "Grayscale image", gray_img)       
 
     return cv.split(gray_img)[0]
 
@@ -43,10 +39,8 @@ def blur_image(cv, img, show_image=True):
     img = cv.GaussianBlur(img, (7, 7), 0)
     print("\tFinish Gaussian smooting")
     if show_image:
-        cv.imshow("Gray smoothed 7 x 7", img)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
-
+        show_image_center(cv, "Gray smooted 7 x 7", img)
+        
     return img
 
 def get_threshold(cv, plt, img, show_image=True):
@@ -62,9 +56,7 @@ def get_threshold(cv, plt, img, show_image=True):
     print("\tThreshold: {}".format(threshold))
         
     if show_image:
-        cv.imshow("Binary image", segmented_img)        
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "Binary image", segmented_img)        
     
     return segmented_img
 
@@ -75,9 +67,7 @@ def apply_opening(cv, img, show_image=True):
     open_image = cv.morphologyEx(img, cv.MORPH_OPEN, kernel)
     print("\tDilating to restore the larger forground objects")
     if show_image:
-        cv.imshow("Apply Opening Operation", open_image)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "Apply Opening Operation", open_image)        
     
     return open_image
 
@@ -94,9 +84,7 @@ def find_contours(cv, original_img, img, show_image=True):
     
     if show_image:
         cv.drawContours(original_img_clone, contours, -1, (255, 0, 0), 2)
-        cv.imshow("All contours", original_img_clone)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "All contours", original_img_clone)
     
     return contours
 
@@ -110,9 +98,7 @@ def find_largest_contours(cv, original_img, contours, show_image=True):
     if show_image:
         original_img_clone = original_img.copy()
         cv.drawContours(original_img_clone, [contours[-1]], -1, (255, 0, 0), 2)
-        cv.imshow("The largest contour", original_img_clone)
-        cv.waitKey(0)        
-        cv.destroyAllWindows()
+        show_image_center(cv, "The largest contour", original_img_clone)       
 
     return (contours, areas)
 
@@ -138,78 +124,97 @@ def show_decision(cv, original_img, contours, ink_level_threshold, show_image=Tr
         print("\n\n****** Ink level is NOT sufficient! ******")
     
     if show_image:
-        cv.imshow("The final result", original_img_clone)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        show_image_center(cv, "The final result", original_img_clone)
+        
 
+import screeninfo
 
+def show_image_center(cv, image_title, img):
+    img_height = img.shape[0]
+    img_width = img.shape[1]
 
-
-from picamera import PiCamera
-def capture_image(cv, width, height, show_image=True):    
-    '''
-    Captures an image by the given dimension and return an OpneCV image object
+    screen = screeninfo.get_monitors()[0]
+    screen_width, screen_height = screen.width, screen.height    
+    x = int(screen_width / 2) - int(img_width /2)
+    y = int(screen_height / 2) - int(img_height /2)
     
-    '''
-    print("# Step 1: Capturing an image of an ink barrel")
-    camera = PiCamera(resolution=(1080, 1920), framerate=30)
-    img = None
-    try:
-        camera.start_preview()
-        sleep(2)
-        camera.stop_preview()
-        print("Start capturing an image")
-        camera.capture('./images/pic.png', resize=(width,height))
-        print("Finished capturing an image")
-    finally:
-        camera.close()
-        print("A camera closed")
+    # print("img_width: {}, img_height: {}".format(img_width, img_height))
+    # print("screen_width: {}, screen_height: {}".format(screen_width, screen_height))
+    # print("x: {}, y:{}".format(x, y))
+    
+    cv.namedWindow(image_title)
+    cv.moveWindow(image_title, x, y)
+    cv.imshow(image_title, img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
-import RPi.GPIO as GPIO
-button = 12
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-print("########### Start Ink level detector ######################")
-print("Ink level detector initiated...")
-print("Press the button to start detecting ink level")
-try:
-    while True:
-        if GPIO.input(button) == GPIO.HIGH:
-            print("The button pressed and start detecting ink level...")
+
+
+# from picamera import PiCamera
+# def capture_image(cv, width, height, show_image=True):    
+#     '''
+#     Captures an image by the given dimension and return an OpneCV image object
+    
+#     '''
+#     print("# Step 1: Capturing an image of an ink barrel")
+#     camera = PiCamera(resolution=(1080, 1920), framerate=30)
+#     img = None
+#     try:
+#         camera.start_preview()
+#         sleep(2)
+#         camera.stop_preview()
+#         print("Start capturing an image")
+#         camera.capture('./images/pic.png', resize=(width,height))
+#         print("Finished capturing an image")
+#     finally:
+#         camera.close()
+#         print("A camera closed")
+
+# import RPi.GPIO as GPIO
+# button = 12
+# GPIO.setwarnings(False)
+# GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# print("########### Start Ink level detector ######################")
+# print("Ink level detector initiated...")
+# print("Press the button to start detecting ink level")
+# try:
+#     while True:
+#         if GPIO.input(button) == GPIO.HIGH:
+#             print("The button pressed and start detecting ink level...")
                         
-            capture_image(cv, 540, 960)
-            original_img = read_captured_image(cv)
-            img = convert_to_gray_image(cv, original_img)
-            img = blur_image(cv, img)
-            img = get_threshold(cv, plt, img)
-            img = apply_opening(cv, img)
-            contours = find_contours(cv, original_img, img)
-            (contours, areas) = find_largest_contours(cv, original_img, contours)
-            show_decision(cv, original_img, contours,0.17)
+#             capture_image(cv, 540, 960)
+#             original_img = read_captured_image(cv)
+#             img = convert_to_gray_image(cv, original_img)
+#             img = blur_image(cv, img)
+#             img = get_threshold(cv, plt, img)
+#             img = apply_opening(cv, img)
+#             contours = find_contours(cv, original_img, img)
+#             (contours, areas) = find_largest_contours(cv, original_img, contours)
+#             show_decision(cv, original_img, contours,0.17)
 
-            print("\nInk level detection is done")
-            sleep(1)
-            print("press the button again if you want to detect another one")
+#             print("\nInk level detection is done")
+#             sleep(1)
+#             print("press the button again if you want to detect another one")
 
-finally:
-    GPIO.cleanup()
-    
-print("################ Ink level detection finished #############################")
+# finally:
+#     GPIO.cleanup()
+
+# print("################ Ink level detection finished #############################")
 
 
 # Non-raspberry Pi version
 
 
-# print("\n\n############## Start Ink level detector ver. non R-Pi ###############")
+print("\n\n############## Start Ink level detector ver. non R-Pi ###############")
 
-# original_img = read_captured_image(cv)
-# img = convert_to_gray_image(cv, original_img)
-# img = blur_image(cv, img)
-# img = get_threshold(cv, plt, img)
-# img = apply_opening(cv, img)
-# contours = find_contours(cv, original_img, img, False)
-# (contours, areas) = find_largest_contours(cv, original_img, contours, True)
-# show_decision(cv, original_img, contours, 0.17)
+original_img = read_captured_image(cv)
+img = convert_to_gray_image(cv, original_img)
+img = blur_image(cv, img)
+img = get_threshold(cv, plt, img)
+img = apply_opening(cv, img)
+contours = find_contours(cv, original_img, img, False)
+(contours, areas) = find_largest_contours(cv, original_img, contours, True)
+show_decision(cv, original_img, contours, 0.17)
 
-# print("\n\n############## Ink level detection finished #######################")
+print("\n\n############## Ink level detection finished #######################")
