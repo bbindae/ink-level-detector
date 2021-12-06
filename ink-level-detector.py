@@ -96,7 +96,7 @@ def find_contours(cv, original_img, img, show_image=True):
         cv.drawContours(original_img_clone, contours, -1, (255, 0, 0), 2)
         cv.imshow("All contours", original_img_clone)
         cv.waitKey(0)
-        cv.destoryAllWindows()
+        cv.destroyAllWindows()
     
     return contours
 
@@ -146,7 +146,7 @@ def show_decision(cv, original_img, contours, ink_level_threshold, show_image=Tr
 
 
 from picamera import PiCamera
-def capture_image(cv, width, height, show_image):    
+def capture_image(cv, width, height, show_image=True):    
     '''
     Captures an image by the given dimension and return an OpneCV image object
     
