@@ -188,7 +188,7 @@ try:
             (contours, areas) = find_largest_contours(cv, original_img, contours)
             show_decision(cv, original_img, contours,0.17)
 
-            print("Ink level detection is done")
+            print("\nInk level detection is done")
             sleep(1)
             print("press the button again if you want to detect another one")
 
